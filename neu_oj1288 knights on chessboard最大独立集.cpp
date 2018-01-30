@@ -1,8 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-///×î´ó¶ÀÁ¢¼¯
-///¶þ·ÖÍ¼
+///æœ€å¤§ç‹¬ç«‹æœº
+///äºŒåˆ†å›¾ HKç®—æ³•
 
 const int maxn = 101010 ;
 
