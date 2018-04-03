@@ -1,0 +1,126 @@
+/*
+ * @Samaritan_infi
+ */
+/// 模版
+#include<bits/stdc++.h>
+#define ll long long
+#define inf 999999999
+using namespace std;
+const int M=1e5+5;
+int n,m,cnt,num[M],pos[M],dfn[M],stk[M],tp,rt,fir[M],tot,anc[M][20],lg[M],c[M],t,ans[M],dep[M],dfs_clock;
+bool vis[M];
+struct edge{
+    int v,nex;
+}e[M];
+struct no{
+     int u,v,a,b,id;
+     bool operator<(const no b)const{
+        return pos[u]==pos[b.u]?dfn[v]<dfn[b.v]:pos[u]<pos[b.u];
+     }
+}q[M];
+void add(int u,int v){
+    e[++tot]=(edge){v,fir[u]};
+    fir[u]=tot;
+}
+int dfs(int u){
+    int siz=0;
+    dfn[u]=++dfs_clock;
+    for(int i=fir[u];i;i=e[i].nex){
+        int v=e[i].v;
+        if(anc[u][0]==v) continue;
+        anc[v][0]=u;
+        dep[v]=dep[u]+1;
+        siz+=dfs(v);
+        if(siz>=t){
+            tot++;
+            for(int i=1;i<=siz;i++) pos[stk[tp--]]=tot;
+            siz=0;
+        }
+    }
+    stk[++tp]=u;
+    return siz+1;
+}
+int LCA(int u,int v){
+    if(dep[u]<dep[v]) swap(u,v);
+    int d=dep[u]-dep[v];
+    for(int i=lg[d];i>=0;i--)
+        if((d>>i)&1) u=anc[u][i];
+    if(u==v) return u;
+    for(int i=lg[n];i>=0;i--)
+        if(anc[u][i]!=anc[v][i]) u=anc[u][i],v=anc[v][i];
+    return anc[u][0];
+}
+void change(int x){
+    if(!vis[x]){
+        vis[x]=1;
+        num[c[x]]++;
+        if(num[c[x]]==1) cnt++;
+    }
+    else{
+        vis[x]=0;
+        num[c[x]]--;
+        if(num[c[x]]==0) cnt--;
+    }
+}
+void work(int u,int v,int lca){
+    while(u!=lca){
+        change(u);
+        u=anc[u][0];
+    }
+    while(v!=lca){
+        change(v);
+        v=anc[v][0];
+    }
+}
+void solve(){
+    for(int i=1;i<=m;i++){
+        int lca=LCA(q[i].u,q[i].v);
+        work(q[i-1].u,q[i].u,LCA(q[i-1].u,q[i].u));
+        work(q[i-1].v,q[i].v,LCA(q[i-1].v,q[i].v));
+        change(lca);
+        ans[q[i].id]=cnt;
+        if(num[q[i].a]&&num[q[i].b]&&q[i].a!=q[i].b) ans[q[i].id]--;
+        change(lca);
+    }
+}
+
+/*
+输入格式： n m , 结点个数, 查询次数
+           1 - n  每个结点的值
+           
+           n - 1 行 树的连接
+           
+           m 行  a b c d  如果c = d = 0 ，a到b的路径上的不同值个数的查询，
+                          否则视为 c 和 d相同，即可能少一
+*/        
+                        
+           
+
+int main(){
+//    freopen("data.in","r",stdin);//
+    scanf("%d%d",&n,&m);
+    t=sqrt(n);
+    for(int i=1;i<=n;i++) scanf("%d",&c[i]);
+    for(int i=1;i<=n;i++){
+        int u,v;
+        scanf("%d%d",&u,&v);
+        if(!u||!v) rt=u+v;
+        else add(u,v),add(v,u);
+    }
+    for(int i=1;i<=m;i++){
+        scanf("%d%d%d%d",&q[i].u,&q[i].v,&q[i].a,&q[i].b);
+        q[i].id=i;
+    }
+    tot=0;
+    int rm=dfs(rt);
+    for(int i=1;i<=rm;i++) pos[stk[tp--]]=tot;
+    sort(q+1,q+m+1);
+    lg[0]=-1;
+    for(int i=1;i<=n;i++) lg[i]=lg[i>>1]+1;
+    for(int i=1;i<=lg[n];i++)
+        for(int j=1;j<=n;j++) anc[j][i]=anc[anc[j][i-1]][i-1];
+    q[0]=(no){rt,rt,0,0,0};
+    solve();
+    for(int i=1;i<=m;i++) printf("%d\n",ans[i]);
+    return 0;
+}
