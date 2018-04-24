@@ -120,6 +120,6 @@ int main() {
     for(int i = 1; i <= m; i ++) {
         if(dist[n + i]) printf("%d ", i);
     } puts("");
-    printf("%d\n", sum - dinic());
+    printf("%d\n", sum );
     return 0;
 }
