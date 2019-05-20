@@ -1,108 +1,129 @@
-/// 别人的，到时候自己重写吧2333333
+/**
+ * @Samaritan
+ */
+//#include <bits/stdc++.h>
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+typedef long long LL;
 
-#include<cstdio>
-#include<cstring>
-#include<algorithm>
- 
-void add(char *res, char *m1, char *m2)
-{
-	int len1 = strlen(m1), len2 = strlen(m2), i1, i2, j, n1, n2, s = 0, si = 0;
-	if (len1 == 0)
-	{
-		memcpy(res, m2, strlen(m2));
-	}
-	else if (m2 == 0)
-	{
-		memcpy(res, m1, strlen(m1));
-	}
-	else
-	{
-		i1 = len1 - 1;
-		i2 = len2 - 1;
-		j = 0;
-		while (i1 >= 0 && i2 >= 0)
-		{
-			n1 = m1[i1--] - '0';
-			n2 = m2[i2--] - '0';
-			s = (n1 + n2 + si) % 10;
-			si = (n1 + n2 + si) / 10;
-			res[j++] = s + '0';
-		}
-		while (i1 >= 0)
-		{
-			n1 = m1[i1--] - '0';
-			s = (n1 + si) % 10;
-			si = (n1 + si) / 10;
-			res[j++] = s + '0';
-		}
-		while (i2 >= 0)
-		{
-			n2 = m2[i2--] - '0';
-			s = (n2 + si) % 10;
-			si = (n2 + si) / 10;
-			res[j++] = s + '0';
-		}
-		if (si)
-		{
-			res[j++] = si + '0';
-		}
-		std::reverse(res, res + strlen(res));
-	}
-}
- 
-void multiply(char *res, char *m1, char *m2)
-{
-	int len1 = strlen(m1), len2 = strlen(m2), i1, i2, j, n1, n2, s = 0, si = 0;
-	char tmp[315] = {}, res2[315] = {};
-	for (i2 = len2 - 1; i2 >= 0; i2--)
-	{
-		memset(tmp, 0, sizeof(tmp));
-		memset(tmp, '0', sizeof(char) *  (len2 - 1 - i2));
-		j = len2 - 1 - i2;
-		si = 0;
-		for (i1 = len1 - 1; i1 >= 0; i1--)
-		{
-			n1 = m1[i1] - '0';
-			n2 = m2[i2] - '0';
-			s = (n1 * n2 + si) % 10;
-			si = (n1 * n2 + si) / 10;
-			tmp[j++] = s + '0';
-		}
-		if (si)
-		{
-			tmp[j++] = si + '0';
-		}
-		std::reverse(tmp, tmp + strlen(tmp));
-		if (strlen(res) != 0)
-		{
-			memcpy(res2, res, strlen(res));
-		}
-		else
-		{
-			res2[0] = '\0';
-		}
-		add(res, res2, tmp);
-	}
-}
- 
-int main()
-{
-	char st[105] = {};
-	char s1[210] = {};
-	char ans[315] = {};
-	scanf("%s", st);
-	if (st[0] != '-')
-	{
-		multiply(s1, st, st);
-		multiply(ans, st, s1);
-		printf("%s", ans);
-	}
-	else
-	{
-		char * ss = st + 1;
-		multiply(s1, ss, ss);
-		multiply(ans, ss, s1);
-		printf("-%s", ans);
-	}
-	return 0;
+const int N = 1e4 + 5;
+#define PII pair<int, int>
+
+struct node {
+    int a[N];
+    int n;
+    bool nag;
+
+    node () {
+        memset(a, 0, sizeof a);
+        n = 0;
+        nag = false;
+    }
+
+    node (int x) {
+        memset(a, 0, sizeof a);
+        n = 0;
+        nag = false;
+        while (x) {
+            a[n] = x % 10;
+            n++;
+            x /= 10;
+        }
+    }
+
+    void init () {
+        n = 1;
+    }
+
+    void show () {
+        if (nag) printf("-");
+        for (int i = n - 1; i >= 0; --i)
+            printf("%d", a[i]);
+        printf("\n");
+    }
+
+    node operator + (node & k) {
+        node c;
+
+        int tot = max(n, k.n);
+        int tmp = 0;
+        for (int i = 0; i < tot; ++i) {
+            tmp += a[i] + k.a[i];
+            c.a[i] = tmp % 10;
+            tmp /= 10;
+        }
+        if (tmp) {
+            c.a[tot] = tmp;
+            c.n = tot+1;
+        } else
+            c.n = tot;
+        return c;
+    }
+    /// has to be a > k
+    node operator - (node & k) {
+        node c;
+
+        int tot = max(n, k.n);
+        int tmp = 0, tuiwei = 0;
+        for (int i = 0; i < tot; ++i) {
+            tmp = a[i] - tuiwei - k.a[i];
+            if (tmp < 0) {
+                tmp += 10;
+                tuiwei = 1;
+            } else {
+                tuiwei = 0;
+            }
+            c.a[i] = tmp;
+        }
+        c.n = tot;
+
+        while (c.a[c.n-1] == 0 && c.n > 0) {
+            c.n--;
+        }
+        if (c.n == 0) {
+            c.n = 1;
+        }
+        return c;
+    }
+
+    node operator * (node & k) {
+        node c;
+        for (int i = 0; i < n; ++i) {
+            int tmp = 0;
+            for (int j = 0; j < k.n; ++j) {
+                c.a[i + j] += a[i] * k.a[j] + tmp;
+                tmp = c.a[i + j] / 10;
+                c.a[i + j] %= 10;
+            }
+            c.a[k.n + i] += tmp;
+        }
+        c.n = n + k.n;
+        while (c.a[c.n-1] == 0 && c.n > 0)
+            c.n--;
+        if (c.n == 0)
+            c.n = 1;
+        return c;
+    }
+};
+
+node arr[1005];
+int main() {
+    LL a, b;
+    node one(1), two(2);
+    arr[1].init();
+    for (int i = 2; i <= 1000; ++i) {
+        if (i & 1)
+            arr[i] = arr[i-1] * two - one;
+        else
+            arr[i] = arr[i-1] * two + one;
+    }
+    while (~ scanf("%d", &a)) {
+        /// odd f[i] = f[i-1] * 2 - 1
+        /// even f[i] = f[i-1] * 2 + 1
+        /// f[1] = 0
+        arr[a].show();
+    }
+    return 0;
 }
