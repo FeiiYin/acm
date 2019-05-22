@@ -13,11 +13,11 @@
 using namespace std;
 typedef long long LL;
 
-const int N = 2e5 + 5;
-const int INF = 1e5 + 5;
-const int mod = 1e9 + 7;
+const int N = 2e6 + 5;
 
-/// next 数组，每一个波峰表示前面匹配到这里，即表示前面的x个前缀各出现一次
+
+/// 题目数据有问题，直接取波峰会出错，应该区next的跳转 已有前缀求和dp得到答案
+
 int nxt[N];
 void get_next (char a[], int len) {
     int i = 0, j = -1;
@@ -34,22 +34,26 @@ void get_next (char a[], int len) {
 }
 
 char a[N];
+int dp[N];
+const int mod = 1000000007;
 
 int main () {
-    int kase;
-    scanf("%d", &kase);
-    while (kase--) {
-        int n; scanf("%d", &n);
+    int n;
+    while (~ scanf("%d", &n)) {
         scanf("%s", a);
+
+        nxt[n+1] = 0;
         get_next(a, n);
-        LL ans = n;
-        for (int i = 1; i <= n+1; ++i) {
-            if (nxt[i] + 1 != nxt[i+1]) {
-                //printf("%d\n", i);
-                ans += nxt[i];
-            }
+        LL ans = 0;
+        dp[0] = 0;
+        /// dp[ nxt[i] ] means another prefix appear
+        for (int i = 1; i <= n; ++i) {
+            dp[i] = dp[ nxt[i] ] + 1;
+            ans += dp[i];
+//            cout << dp[i] << " ";
         }
-        printf("%lld\n", ans%10007);
+        printf("%lld\n", ans % mod);
     }
     return 0;
 }
+
