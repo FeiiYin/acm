@@ -102,7 +102,7 @@ int main() {
     LL bit = 0;
     LL fai_mod = phi(mod);
 //    LL fai_mod = mod;
-    LL effi = do_mod(arr, fai_mod);
+    LL effi = do_mod(arr, fai_mod) + fai_mod;
 
     while (effi) {
         if (effi & 1) {
