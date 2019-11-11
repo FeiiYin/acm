@@ -69,6 +69,16 @@ LL do_mod(char str[], LL mod) {
     return sum;
 }
 
+LL tran_val(char str[]) {
+    int len = strlen(str);
+    if (len > 18) return 1e18;
+    LL sum = 0;
+    for (int i = 0; i < len; ++i) {
+        sum = (sum * 10 + str[i] - '0');
+    }
+    return sum;
+}
+
 int main() {
 //    LL n;
 //    while (~ scanf("%lld", &n)) {
@@ -103,7 +113,9 @@ int main() {
     LL fai_mod = phi(mod);
 //    LL fai_mod = mod;
     LL effi = do_mod(arr, fai_mod) + fai_mod;
-
+    LL val = tran_val(arr);
+    if (val < fai_mod)
+        effi = val;
     while (effi) {
         if (effi & 1) {
             mul(k.m, ans.m);
