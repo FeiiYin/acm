@@ -17,46 +17,46 @@ void show(int arr[], int n) {
 
 const int D = 2;
 struct mat {
-    LL m[2][2];
+    LL m[D][D];
+    mat() {
+        memset(m, 0, sizeof m);
+    }
+    mat(LL a[D][D]) {
+        for (int i = 0; i < D; ++i)
+            for (int j = 0; j < D; ++j)
+                m[i][j] = a[i][j];
+    }
     void show() {
-        for (int i = 0; i < 2; ++i) {
-            for (int j = 0; j < 2; ++j)
+        for (int i = 0; i < D; ++i) {
+            for (int j = 0; j < D; ++j)
                 cout << m[i][j] << " ";
             cout << endl;
         }
     }
 };
 
-LL temp[D][D];
-LL mod;
-void mul (LL a[D][D], LL b[D][D]) {
-//    const LL& a[3][3] = amat.m;
-//    const LL& b[3][3] = bmat.m;
-    memset(temp, 0, sizeof temp);
+mat mul (mat a, mat b, LL mod) {
+    mat temp;
     for (int i = 0; i < D; ++i) {
         for (int j = 0; j < D; ++j) { // if (a[i][j]) {
             for (int k = 0; k < D; ++k) {
-                (temp[i][j] += a[i][k] * b[k][j] % mod) %= mod;
+                (temp.m[i][j] += a.m[i][k] * b.m[k][j] % mod) %= mod;
             }
         }
     }
-    for (int i = 0; i < D; ++i) {
-        for (int j = 0; j < D; ++j) {
-            b[i][j] = temp[i][j];
-        }
-    }
+    return temp;
 }
 
-
-LL phi(LL x){
-    LL ans = x;
-    for(LL i = 2; i*i <= x; i++){
-        if (x % i == 0){
-            ans = ans / i * (i-1);
-            while(x % i == 0) x /= i;
+mat quick_pow(mat m, LL x, LL mod) {
+    mat ans;
+    ans.m[0][0] = ans.m[1][1] = 1;
+    while (x) {
+        if (x & 1) {
+            ans = mul(ans, m, mod);
         }
+        x >>= 1;
+        m = mul(m, m, mod);
     }
-    if(x > 1) ans = ans / x * (x-1);
     return ans;
 }
 
@@ -79,98 +79,35 @@ LL tran_val(char str[]) {
     return sum;
 }
 
+mat const_mat[10];
+
 int main() {
-//    LL n;
-//    while (~ scanf("%lld", &n)) {
-//        string tt = "";
-//        while (n) {
-//            if (n & 1) tt += "1";
-//            else tt += "0";
-//            n >>= 1;
-//        }
-//        cout << tt << endl;
-//    }
-    LL x0, x1, a, b;
+    LL x0, x1, a, b, mod;
     scanf("%lld %lld %lld %lld", &x0, &x1, &a, &b);
     scanf("%s %lld", arr, &mod);
-    /*ab0
-    a00
-    0b0*/
     mat k;
     memset(k.m, 0, sizeof k.m);
     k.m[0][0] = a;
     k.m[0][1] = b;
     k.m[1][0] = 1;
-//    k.m[2][1] = 1;
 
-    mat ans;
-    memset(ans.m, 0, sizeof ans.m);
-    ans.m[0][0] = x1;
-    ans.m[1][0] = x0; // = ans.m[1][1] = ans.m[2][2] = 1;
-//    k.show();
-//    int len = strlen(arr);
-    LL bit = 0;
-    LL fai_mod = phi(mod);
-//    LL fai_mod = mod;
-    LL effi = do_mod(arr, fai_mod) + fai_mod;
-    LL val = tran_val(arr);
-    if (val < fai_mod)
-        effi = val;
-    while (effi) {
-        if (effi & 1) {
-            mul(k.m, ans.m);
-        }
-        mul(k.m, k.m);
-        effi >>= 1;
-//        ans.show();
+    for (int i = 0; i < 10; ++i) {
+        const_mat[i] = quick_pow(k, i, mod);
     }
+    int len = strlen(arr);
+    mat transfer;
+    transfer.m[0][0] = 1;
+    transfer.m[1][1] = 1;
+    for (int i = 0; i < len; ++i) {
+        transfer = quick_pow(transfer, 10LL, mod);
+        transfer = mul(transfer, const_mat[ arr[i] - '0' ], mod);
+    }
+//    transfer.show();
+    mat ans;
+    ans.m[0][0] = x1;
+    ans.m[1][0] = x0;
+    ans = mul(transfer, ans, mod);
 //    ans.show();
     printf("%lld\n", ans.m[1][0]);
-//    bool borrow = false;
-
-//    string temp = "";
-//
-//    for (int i = len - 1; i >= 1; --i) {
-//        int now = arr[i] - '0';
-//        if (borrow) {
-//            if (now > 0) now--;
-//            else {
-//                now = 9;
-//                borrow = true;
-//            }
-//        }
-//        if (now >= 0 && now <= 5) {
-//            now += 10;
-//            borrow = true;
-//        }
-//        while (now) {
-//            if (now & 1) {
-//                mul(ans.m, k.m);
-//                temp += "1";
-//            } else {
-//                temp += "0";
-//            }
-//            now >>= 1;
-//            mul(k.m, k.m);
-//        }
-//    }
-//    if (borrow) {
-//        arr[0]--;
-//    }
-//    int now = arr[0] - '0';
-//    if (now) {
-//        while (now) {
-//            if (now & 1) {
-//                mul(ans.m, k.m);
-//                temp += "1";
-//            } else {
-//                temp += "0";
-//            }
-//            now >>= 1;
-//            mul(k.m, k.m);
-//        }
-//    }
-//    cout << temp << endl;
-//    ans.show();
     return 0;
 }
